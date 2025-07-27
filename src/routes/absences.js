@@ -23,9 +23,10 @@ const router = express.Router();
  *               value:
  *                 dateDebut: "2024-01-15"
  *                 dateFin: "2024-01-20"
- *                 coordonneesPers:
- *                   latitude: 48.8566
- *                   longitude: 2.3522
+ *                 firstname: "Jean"
+ *                 lastname: "Dupont"
+ *                 phone: "0123456789"
+ *                 email: "jean.dupont@email.fr"
  *                 adresseDomicile: "123 Rue de Rivoli, 75001 Paris, France"
  *     responses:
  *       201:
@@ -66,7 +67,10 @@ router.post('/', async (req, res, next) => {
         id: absence.id,
         dateDebut: absence.dateDebut,
         dateFin: absence.dateFin,
-        coordonneesPers: absence.coordonneesPers,
+        firstname: absence.firstname,
+        lastname: absence.lastname,
+        phone: absence.phone,
+        email: absence.email,
         adresseDomicile: absence.adresseDomicile,
         dateCreation: absence.dateCreation,
         dateModification: absence.dateModification
@@ -150,7 +154,10 @@ router.get('/:id', async (req, res, next) => {
         id: absence.id,
         dateDebut: absence.dateDebut,
         dateFin: absence.dateFin,
-        coordonneesPers: absence.coordonneesPers,
+        firstname: absence.firstname,
+        lastname: absence.lastname,
+        phone: absence.phone,
+        email: absence.email,
         adresseDomicile: absence.adresseDomicile,
         dateCreation: absence.dateCreation,
         dateModification: absence.dateModification
@@ -189,9 +196,10 @@ router.get('/:id', async (req, res, next) => {
  *               value:
  *                 dateDebut: "2024-01-16"
  *                 dateFin: "2024-01-25"
- *                 coordonneesPers:
- *                   latitude: 48.8566
- *                   longitude: 2.3522
+ *                 firstname: "Jean"
+ *                 lastname: "Dupont"
+ *                 phone: "0123456789"
+ *                 email: "jean.dupont@email.fr"
  *                 adresseDomicile: "123 Rue de Rivoli, 75001 Paris, France"
  *     responses:
  *       200:
@@ -255,7 +263,10 @@ router.put('/:id', async (req, res, next) => {
         id: absence.id,
         dateDebut: absence.dateDebut,
         dateFin: absence.dateFin,
-        coordonneesPers: absence.coordonneesPers,
+        firstname: absence.firstname,
+        lastname: absence.lastname,
+        phone: absence.phone,
+        email: absence.email,
         adresseDomicile: absence.adresseDomicile,
         dateCreation: absence.dateCreation,
         dateModification: absence.dateModification
@@ -328,7 +339,10 @@ router.get('/', async (req, res, next) => {
         id: absence.id,
         dateDebut: absence.dateDebut,
         dateFin: absence.dateFin,
-        coordonneesPers: absence.coordonneesPers,
+        firstname: absence.firstname,
+        lastname: absence.lastname,
+        phone: absence.phone,
+        email: absence.email,
         adresseDomicile: absence.adresseDomicile,
         dateCreation: absence.dateCreation,
         dateModification: absence.dateModification

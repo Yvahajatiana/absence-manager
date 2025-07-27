@@ -30,7 +30,7 @@ const options = {
       schemas: {
         Absence: {
           type: 'object',
-          required: ['dateDebut', 'dateFin', 'coordonneesPers', 'adresseDomicile'],
+          required: ['dateDebut', 'dateFin', 'firstname', 'lastname', 'phone', 'adresseDomicile'],
           properties: {
             id: {
               type: 'integer',
@@ -49,26 +49,32 @@ const options = {
               description: 'Date de fin de l\'absence (YYYY-MM-DD). Doit être postérieure à la date de début.',
               example: '2024-01-20'
             },
-            coordonneesPers: {
-              type: 'object',
-              description: 'Coordonnées GPS de la personne au moment de la déclaration',
-              required: ['latitude', 'longitude'],
-              properties: {
-                latitude: {
-                  type: 'number',
-                  minimum: -90,
-                  maximum: 90,
-                  description: 'Latitude en degrés décimaux',
-                  example: 48.8566
-                },
-                longitude: {
-                  type: 'number',
-                  minimum: -180,
-                  maximum: 180,
-                  description: 'Longitude en degrés décimaux',
-                  example: 2.3522
-                }
-              }
+            firstname: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+              description: 'Prénom de la personne',
+              example: 'Jean'
+            },
+            lastname: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+              description: 'Nom de famille de la personne',
+              example: 'Dupont'
+            },
+            phone: {
+              type: 'string',
+              pattern: '^(\\+33|0)[1-9](\\d{8})$',
+              description: 'Numéro de téléphone au format français',
+              example: '0123456789'
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+              maxLength: 100,
+              description: 'Adresse email (optionnel)',
+              example: 'jean.dupont@email.fr'
             },
             adresseDomicile: {
               type: 'string',
@@ -93,7 +99,7 @@ const options = {
         },
         AbsenceInput: {
           type: 'object',
-          required: ['dateDebut', 'dateFin', 'coordonneesPers', 'adresseDomicile'],
+          required: ['dateDebut', 'dateFin', 'firstname', 'lastname', 'phone', 'adresseDomicile'],
           properties: {
             dateDebut: {
               type: 'string',
@@ -107,23 +113,28 @@ const options = {
               description: 'Date de fin de l\'absence (YYYY-MM-DD)',
               example: '2024-01-20'
             },
-            coordonneesPers: {
-              type: 'object',
-              required: ['latitude', 'longitude'],
-              properties: {
-                latitude: {
-                  type: 'number',
-                  minimum: -90,
-                  maximum: 90,
-                  example: 48.8566
-                },
-                longitude: {
-                  type: 'number',
-                  minimum: -180,
-                  maximum: 180,
-                  example: 2.3522
-                }
-              }
+            firstname: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+              example: 'Jean'
+            },
+            lastname: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+              example: 'Dupont'
+            },
+            phone: {
+              type: 'string',
+              pattern: '^(\\+33|0)[1-9](\\d{8})$',
+              example: '0123456789'
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+              maxLength: 100,
+              example: 'jean.dupont@email.fr'
             },
             adresseDomicile: {
               type: 'string',

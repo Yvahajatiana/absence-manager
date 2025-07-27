@@ -21,33 +21,46 @@ const absenceSchema = Joi.object({
       'any.required': 'La date de fin est obligatoire'
     }),
   
-  coordonneesPers: Joi.object({
-    latitude: Joi.number()
-      .min(-90)
-      .max(90)
-      .required()
-      .messages({
-        'number.base': 'La latitude doit être un nombre',
-        'number.min': 'La latitude doit être comprise entre -90 et 90',
-        'number.max': 'La latitude doit être comprise entre -90 et 90',
-        'any.required': 'La latitude est obligatoire'
-      }),
-    
-    longitude: Joi.number()
-      .min(-180)
-      .max(180)
-      .required()
-      .messages({
-        'number.base': 'La longitude doit être un nombre',
-        'number.min': 'La longitude doit être comprise entre -180 et 180',
-        'number.max': 'La longitude doit être comprise entre -180 et 180',
-        'any.required': 'La longitude est obligatoire'
-      })
-  })
+  firstname: Joi.string()
+    .min(2)
+    .max(50)
     .required()
     .messages({
-      'object.base': 'Les coordonnées doivent être un objet',
-      'any.required': 'Les coordonnées de la personne sont obligatoires'
+      'string.base': 'Le prénom doit être une chaîne de caractères',
+      'string.min': 'Le prénom doit contenir au moins 2 caractères',
+      'string.max': 'Le prénom ne peut pas dépasser 50 caractères',
+      'any.required': 'Le prénom est obligatoire'
+    }),
+  
+  lastname: Joi.string()
+    .min(2)
+    .max(50)
+    .required()
+    .messages({
+      'string.base': 'Le nom de famille doit être une chaîne de caractères',
+      'string.min': 'Le nom de famille doit contenir au moins 2 caractères',
+      'string.max': 'Le nom de famille ne peut pas dépasser 50 caractères',
+      'any.required': 'Le nom de famille est obligatoire'
+    }),
+  
+  phone: Joi.string()
+    .pattern(/^(\+33|0)[1-9](\d{8})$/)
+    .required()
+    .messages({
+      'string.base': 'Le numéro de téléphone doit être une chaîne de caractères',
+      'string.pattern.base': 'Le numéro de téléphone doit être au format français valide (ex: 0123456789 ou +33123456789)',
+      'any.required': 'Le numéro de téléphone est obligatoire'
+    }),
+  
+  email: Joi.string()
+    .email()
+    .max(100)
+    .optional()
+    .allow('')
+    .messages({
+      'string.base': 'L\'adresse email doit être une chaîne de caractères',
+      'string.email': 'L\'adresse email doit être valide',
+      'string.max': 'L\'adresse email ne peut pas dépasser 100 caractères'
     }),
   
   adresseDomicile: Joi.string()
@@ -68,7 +81,7 @@ const validateAbsence = (data) => {
 
 const validatePartialAbsence = (data) => {
   const partialSchema = absenceSchema.fork(
-    ['dateDebut', 'dateFin', 'coordonneesPers', 'adresseDomicile'],
+    ['dateDebut', 'dateFin', 'firstname', 'lastname', 'phone', 'email', 'adresseDomicile'],
     (schema) => schema.optional()
   );
   

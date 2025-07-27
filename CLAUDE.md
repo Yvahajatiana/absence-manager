@@ -57,7 +57,7 @@ src/
 
 ## Data Model
 
-Modèle Absence avec champs : id, dateDebut, dateFin, coordonneesPers (lat/lng), adresseDomicile, dateCreation, dateModification.
+Modèle Absence avec champs : id, dateDebut, dateFin, firstname, lastname, phone, email (optionnel), adresseDomicile, dateCreation, dateModification.
 
 ## Tech Stack
 
