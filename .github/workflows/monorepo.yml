@@ -59,7 +59,7 @@ jobs:
       run: npm ci
       
     - name: Cache root node_modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: node_modules
         key: ${{ runner.os }}-root-${{ hashFiles('package-lock.json') }}
@@ -153,7 +153,7 @@ jobs:
       working-directory: ./${{ matrix.workspace }}
       
     - name: Cache build artifacts
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ./${{ matrix.workspace }}/dist
         key: ${{ runner.os }}-${{ matrix.workspace }}-build-${{ github.sha }}
