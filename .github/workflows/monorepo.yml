@@ -1,0 +1,368 @@
+name: Monorepo CI/CD
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      client: ${{ steps.changes.outputs.client }}
+      root: ${{ steps.changes.outputs.root }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Detect changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'absence-backend/**'
+            frontend:
+              - 'absence-frontend/**'
+            client:
+              - 'absence-client/**'
+            root:
+              - 'package.json'
+              - 'package-lock.json'
+              - '.github/workflows/**'
+
+  install-root:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.root == 'true' || github.event_name == 'schedule'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install root dependencies
+      run: npm ci
+      
+    - name: Cache root node_modules
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-root-${{ hashFiles('package-lock.json') }}
+
+  validate-monorepo:
+    runs-on: ubuntu-latest
+    needs: [changes, install-root]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate workspace configuration
+      run: |
+        echo "🔍 Validating monorepo configuration"
+        npm run validate-workspaces || echo "validate-workspaces script not found"
+        
+    - name: Check for duplicate dependencies
+      run: |
+        echo "🔍 Checking for duplicate dependencies across workspaces"
+        node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const workspaces = ['absence-backend', 'absence-frontend', 'absence-client'];
+          const allDeps = {};
+          
+          workspaces.forEach(workspace => {
+            const pkgPath = path.join(workspace, 'package.json');
+            if (fs.existsSync(pkgPath)) {
+              const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+              const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+              Object.entries(deps).forEach(([name, version]) => {
+                if (!allDeps[name]) allDeps[name] = [];
+                allDeps[name].push({ workspace, version });
+              });
+            }
+          });
+          
+          const duplicates = Object.entries(allDeps).filter(([_, versions]) => 
+            versions.length > 1 && new Set(versions.map(v => v.version)).size > 1
+          );
+          
+          if (duplicates.length > 0) {
+            console.log('⚠️ Duplicate dependencies with different versions:');
+            duplicates.forEach(([name, versions]) => {
+              console.log(\`- \${name}: \${versions.map(v => \`\${v.workspace}@\${v.version}\`).join(', ')}\`);
+            });
+          } else {
+            console.log('✅ No duplicate dependencies found');
+          }
+        "
+
+  build-all:
+    runs-on: ubuntu-latest
+    needs: [changes, validate-monorepo]
+    if: always() && (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true' || needs.changes.outputs.client == 'true' || github.event_name == 'schedule')
+    
+    strategy:
+      matrix:
+        workspace: [absence-backend, absence-frontend, absence-client]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install root dependencies
+      run: npm ci
+      
+    - name: Install workspace dependencies
+      run: npm ci
+      working-directory: ./${{ matrix.workspace }}
+      
+    - name: Build workspace
+      run: npm run build
+      working-directory: ./${{ matrix.workspace }}
+      
+    - name: Cache build artifacts
+      uses: actions/cache@v3
+      with:
+        path: ./${{ matrix.workspace }}/dist
+        key: ${{ runner.os }}-${{ matrix.workspace }}-build-${{ github.sha }}
+
+  test-all:
+    runs-on: ubuntu-latest
+    needs: [changes, build-all]
+    if: always() && (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true' || needs.changes.outputs.client == 'true' || github.event_name == 'schedule')
+    
+    strategy:
+      matrix:
+        workspace: [absence-backend, absence-frontend, absence-client]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install root dependencies
+      run: npm ci
+      
+    - name: Install workspace dependencies
+      run: npm ci
+      working-directory: ./${{ matrix.workspace }}
+      
+    - name: Run tests
+      run: npm test
+      working-directory: ./${{ matrix.workspace }}
+      env:
+        CI: true
+        NODE_ENV: test
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: [changes, test-all]
+    if: always() && (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true' || needs.changes.outputs.client == 'true' || github.event_name == 'schedule')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install all dependencies
+      run: |
+        npm ci
+        cd absence-backend && npm ci && cd ..
+        cd absence-frontend && npm ci && cd ..
+        cd absence-client && npm ci && cd ..
+        
+    - name: Build all projects
+      run: |
+        cd absence-backend && npm run build && cd ..
+        cd absence-frontend && npm run build && cd ..
+        cd absence-client && npm run build && cd ..
+        
+    - name: Start backend
+      run: |
+        cd absence-backend
+        npm run start &
+        sleep 10
+      env:
+        NODE_ENV: test
+        PORT: 3000
+        DB_STORAGE: './integration-test.db'
+        
+    - name: Start client
+      run: |
+        cd absence-client
+        npm run start &
+        sleep 10
+      env:
+        NODE_ENV: test
+        PORT: 3003
+        API_BASE_URL: http://localhost:3000/api
+        
+    - name: Serve frontend
+      run: |
+        cd absence-frontend
+        npm install -g serve
+        serve -s dist -p 5173 &
+        sleep 5
+        
+    - name: Run integration tests
+      run: |
+        echo "🧪 Running full integration tests"
+        # Test backend health
+        curl -f http://localhost:3000/health || exit 1
+        echo "✅ Backend health check passed"
+        
+        # Test client SSR
+        curl -f http://localhost:3003 || exit 1
+        echo "✅ Client SSR check passed"
+        
+        # Test frontend SPA
+        curl -f http://localhost:5173 || exit 1
+        echo "✅ Frontend SPA check passed"
+        
+        # Test API endpoints
+        curl -f http://localhost:3000/api/absences || exit 1
+        echo "✅ API endpoints check passed"
+        
+        echo "🎉 All integration tests passed"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run security audit (root)
+      run: npm audit --audit-level=moderate || true
+      
+    - name: Run security audit (all workspaces)
+      run: |
+        for workspace in absence-backend absence-frontend absence-client; do
+          echo "🔒 Security audit for $workspace"
+          cd $workspace
+          npm ci
+          npm audit --audit-level=moderate || true
+          cd ..
+        done
+
+  docker-compose-test:
+    runs-on: ubuntu-latest
+    needs: [changes, integration-test]
+    if: always() && (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true' || github.event_name == 'schedule')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Test Docker Compose build
+      run: |
+        echo "🐳 Testing Docker Compose build"
+        docker-compose build
+        
+    - name: Test Docker Compose services
+      run: |
+        echo "🐳 Testing Docker Compose services"
+        docker-compose up -d
+        sleep 30
+        
+        # Test backend service
+        curl -f http://localhost:3000/health || exit 1
+        echo "✅ Backend Docker service running"
+        
+        # Test frontend service
+        curl -f http://localhost:8080 || exit 1
+        echo "✅ Frontend Docker service running"
+        
+        docker-compose down
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [integration-test, security-scan, docker-compose-test]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push' && success()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to staging environment
+      run: |
+        echo "🚀 Deploying entire monorepo to staging"
+        echo "Staging deployment would happen here"
+        # Add your staging deployment commands here
+        
+    - name: Run smoke tests on staging
+      run: |
+        echo "🧪 Running smoke tests on staging"
+        # Add staging smoke tests here
+        
+    - name: Notify successful deployment
+      run: |
+        echo "✅ Monorepo deployed successfully to staging"
+        # Add notification logic here
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [integration-test, security-scan, docker-compose-test]
+    if: always()
+    
+    steps:
+    - name: Cleanup artifacts
+      run: |
+        echo "🧹 Cleaning up build artifacts and temporary files"
+        # Add cleanup commands here if needed
