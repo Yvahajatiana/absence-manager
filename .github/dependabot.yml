@@ -1,0 +1,91 @@
+# Dependabot configuration
+version: 2
+updates:
+  # Root package.json
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@maintainers"
+    assignees:
+      - "@maintainers"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # Backend dependencies
+  - package-ecosystem: "npm"
+    directory: "/absence-backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@maintainers"
+    assignees:
+      - "@maintainers"
+    commit-message:
+      prefix: "deps(backend)"
+      include: "scope"
+
+  # Frontend dependencies  
+  - package-ecosystem: "npm"
+    directory: "/absence-frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@maintainers"
+    assignees:
+      - "@maintainers"
+    commit-message:
+      prefix: "deps(frontend)"
+      include: "scope"
+
+  # Client dependencies
+  - package-ecosystem: "npm"
+    directory: "/absence-client"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@maintainers"
+    assignees:
+      - "@maintainers"
+    commit-message:
+      prefix: "deps(client)"
+      include: "scope"
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/absence-backend"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: "docker"
+    directory: "/absence-frontend"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "06:00"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"
+      include: "scope"

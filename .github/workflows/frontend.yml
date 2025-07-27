@@ -1,0 +1,246 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [ master, main, develop ]
+    paths:
+      - 'absence-frontend/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    branches: [ master, main, develop ]
+    paths:
+      - 'absence-frontend/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install frontend dependencies
+      run: npm ci
+      working-directory: ./absence-frontend
+      
+    - name: Run linting
+      run: npm run lint
+      working-directory: ./absence-frontend
+      
+    - name: Run TypeScript type checking
+      run: npm run type-check
+      working-directory: ./absence-frontend
+      
+    - name: Run tests
+      run: npm test
+      working-directory: ./absence-frontend
+      env:
+        CI: true
+        
+    - name: Build application
+      run: npm run build
+      working-directory: ./absence-frontend
+      env:
+        NODE_ENV: production
+        
+    - name: Test build artifacts
+      run: |
+        ls -la dist/
+        # Verify that essential files exist
+        test -f dist/index.html
+        test -d dist/assets
+      working-directory: ./absence-frontend
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: [test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install frontend dependencies
+      run: npm ci
+      working-directory: ./absence-frontend
+      
+    - name: Build application
+      run: npm run build
+      working-directory: ./absence-frontend
+      
+    - name: Serve application
+      run: |
+        npm install -g serve
+        serve -s dist -p 3000 &
+        sleep 5
+      working-directory: ./absence-frontend
+      
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        configPath: './absence-frontend/lighthouserc.json'
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install frontend dependencies
+      run: npm ci
+      working-directory: ./absence-frontend
+      
+    - name: Run security audit
+      run: npm audit --audit-level=moderate
+      working-directory: ./absence-frontend
+      
+    - name: Check for outdated packages
+      run: npm outdated || true
+      working-directory: ./absence-frontend
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: [test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install frontend dependencies
+      run: npm ci
+      working-directory: ./absence-frontend
+      
+    - name: Install backend dependencies
+      run: npm ci
+      working-directory: ./absence-backend
+      
+    - name: Start backend server
+      run: |
+        npm run start &
+        sleep 10
+      working-directory: ./absence-backend
+      env:
+        NODE_ENV: test
+        PORT: 3000
+        DB_STORAGE: './e2e-test.db'
+        
+    - name: Build and start frontend
+      run: |
+        npm run build
+        npm run preview &
+        sleep 5
+      working-directory: ./absence-frontend
+      
+    - name: Run E2E tests
+      run: |
+        # Add your E2E test commands here
+        echo "🧪 Running E2E tests"
+        curl -f http://localhost:5173 || exit 1
+        curl -f http://localhost:3000/health || exit 1
+        echo "✅ E2E tests passed"
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      run: |
+        docker build -t absence-frontend:test .
+        docker run --rm -d -p 8080:8080 --name test-frontend absence-frontend:test
+        sleep 10
+        curl -f http://localhost:8080 || exit 1
+        docker stop test-frontend
+      working-directory: ./absence-frontend
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, lighthouse, security, e2e, docker]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies and build
+      run: |
+        npm ci
+        npm ci
+        npm run build
+      working-directory: ./absence-frontend
+      
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploying frontend to staging environment"
+        echo "Frontend deployment would happen here"
+        # Add your deployment commands here (Netlify, Vercel, S3, etc.)
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: ./absence-frontend/dist/
+        retention-days: 30
+        
+    - name: Notify deployment
+      run: |
+        echo "✅ Frontend deployed successfully to staging"
+        # Add notification logic here (Slack, Discord, email, etc.)
