@@ -1,0 +1,168 @@
+<div style="background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); color: white; padding: 3rem 0; margin: -2rem -1rem 2rem -1rem; text-align: center;">
+  <div style="max-width: 800px; margin: 0 auto; padding: 0 1rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">🔗 Confirmation de Déclaration</h1>
+    <p style="font-size: 1.1rem; opacity: 0.9;">Détails de votre déclaration d'absence #{{absence.id}}</p>
+  </div>
+</div>
+
+<div class="form-container">
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <div style="display: inline-block; background: #e8f5e8; padding: 1rem 2rem; border-radius: 50px; margin-bottom: 1rem;">
+      <span style="color: #28a745; font-size: 1.1rem; font-weight: 600;">
+        ✅ Déclaration Active - #{{absence.id}}
+      </span>
+    </div>
+  </div>
+
+  <h2 style="color: #000091; font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center;">
+    📋 Informations de la déclaration
+  </h2>
+
+  <div style="background: #f8f9fa; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+      <div>
+        <h3 style="color: #000091; font-size: 1.1rem; margin-bottom: 1rem;">👤 Informations personnelles</h3>
+        <div style="margin-bottom: 0.5rem;">
+          <strong>Nom complet :</strong> {{absence.firstname}} {{absence.lastname}}
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+          <strong>Téléphone :</strong> {{absence.phone}}
+        </div>
+        {{#if absence.email}}
+        <div style="margin-bottom: 0.5rem;">
+          <strong>Email :</strong> {{absence.email}}
+        </div>
+        {{/if}}
+        <div>
+          <strong>Adresse :</strong> {{absence.adresseDomicile}}
+        </div>
+      </div>
+
+      <div>
+        <h3 style="color: #000091; font-size: 1.1rem; margin-bottom: 1rem;">📅 Période d'absence</h3>
+        <div style="margin-bottom: 0.5rem;">
+          <strong>Date de début :</strong><br>
+          {{formatDate absence.dateDebut}}
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <strong>Date de fin :</strong><br>
+          {{formatDate absence.dateFin}}
+        </div>
+        <div style="background: #e3f2fd; padding: 0.5rem; border-radius: 4px; font-size: 0.9rem;">
+          <strong>Durée :</strong> 
+          {{#with absence}}
+            {{#calculateDuration dateDebut dateFin}}{{/calculateDuration}} jours
+          {{/with}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #e8f5e8; border-left: 4px solid #28a745; padding: 1.5rem; margin-bottom: 2rem;">
+    <h3 style="color: #155724; margin-bottom: 1rem;">🛡️ Statut de la surveillance</h3>
+    <div style="color: #155724;">
+      <div style="margin-bottom: 0.5rem;">
+        <strong>✅ Déclaration enregistrée</strong> le {{formatDateTime absence.dateCreation}}
+      </div>
+      {{#unless (eq absence.dateModification absence.dateCreation)}}
+      <div style="margin-bottom: 0.5rem;">
+        <strong>📝 Dernière modification</strong> le {{formatDateTime absence.dateModification}}
+      </div>
+      {{/unless}}
+      <div>
+        <strong>🚔 Patrouilles programmées</strong> dans votre secteur pendant la période d'absence
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1.5rem;">
+      <h4 style="color: #856404; margin-bottom: 1rem;">⏰ Période active</h4>
+      <p style="color: #856404; font-size: 0.9rem; margin: 0;">
+        {{#periodStatus absence.dateDebut absence.dateFin}}{{/periodStatus}}
+      </p>
+    </div>
+
+    <div style="background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 1.5rem;">
+      <h4 style="color: #0c5460; margin-bottom: 1rem;">📞 Contact d'urgence</h4>
+      <p style="color: #0c5460; font-size: 0.9rem; margin: 0;">
+        En cas d'anomalie détectée, nous vous contacterons immédiatement au <strong>{{absence.phone}}</strong>
+      </p>
+    </div>
+  </div>
+
+  <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1.5rem; margin-bottom: 2rem;">
+    <h3 style="color: #721c24; margin-bottom: 1rem;">⚠️ Important : Modifications</h3>
+    <p style="color: #721c24; margin-bottom: 1rem;">
+      Si vos plans changent (retour anticipé, prolongation, etc.), 
+      <strong>contactez-nous immédiatement</strong> pour éviter tout malentendu.
+    </p>
+    <div style="text-align: center;">
+      <strong style="background: #721c24; color: white; padding: 0.5rem 1rem; border-radius: 4px;">
+        📞 01 23 45 67 89 - Référence : #{{absence.id}}
+      </strong>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 2rem;">
+    <a href="/" class="btn btn-primary">← Retour à l'accueil</a>
+    <button onclick="window.print()" class="btn btn-secondary">🖨️ Imprimer</button>
+  </div>
+</div>
+
+<div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); margin-bottom: 2rem;">
+  <h2 style="color: #000091; font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; text-align: center;">
+    🏛️ Service de Police Municipale
+  </h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: center;">
+    <div>
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">📞</div>
+      <strong>Urgence 24h/24</strong><br>
+      <span style="color: #dc3545; font-weight: bold;">17</span>
+    </div>
+    
+    <div>
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏢</div>
+      <strong>Standard</strong><br>
+      01 23 45 67 89
+    </div>
+    
+    <div>
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">✉️</div>
+      <strong>Email</strong><br>
+      police.municipale@mairie.fr
+    </div>
+  </div>
+</div>
+
+<script>
+  // Helper functions pour les helpers Handlebars complexes
+  document.addEventListener('DOMContentLoaded', function() {
+    // Calculer la durée en jours
+    const dateDebut = new Date('{{absence.dateDebut}}');
+    const dateFin = new Date('{{absence.dateFin}}');
+    const diffTime = Math.abs(dateFin - dateDebut);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Mettre à jour l'affichage de la durée
+    const durationElement = document.querySelector('[data-duration]');
+    if (durationElement) {
+      durationElement.textContent = diffDays + ' jours';
+    }
+    
+    // Déterminer le statut de la période
+    const now = new Date();
+    const statusElement = document.querySelector('[data-period-status]');
+    if (statusElement) {
+      let statusText = '';
+      if (now < dateDebut) {
+        statusText = `La surveillance débutera le ${dateDebut.toLocaleDateString('fr-FR')}`;
+      } else if (now >= dateDebut && now <= dateFin) {
+        statusText = `⚡ Surveillance en cours jusqu'au ${dateFin.toLocaleDateString('fr-FR')}`;
+      } else {
+        statusText = `Surveillance terminée le ${dateFin.toLocaleDateString('fr-FR')}`;
+      }
+      statusElement.textContent = statusText;
+    }
+  });
+</script>
