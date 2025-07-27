@@ -10,18 +10,26 @@ const CreateAbsencePage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const isEdit = Boolean(id)
-  
+
   const { data: existingAbsence } = useAbsence(Number(id))
   const createMutation = useCreateAbsence()
   const updateMutation = useUpdateAbsence()
-  
-  const { register, handleSubmit, formState: { errors } } = useForm<CreateAbsenceData>({
-    defaultValues: existingAbsence || {}
+
+  const { register, handleSubmit, formState: { errors } } = useForm<CreateAbsenceData & { id?: number }>({
+    defaultValues: existingAbsence ? {
+      firstname: existingAbsence.firstname,
+      lastname: existingAbsence.lastname,
+      dateDebut: existingAbsence.dateDebut,
+      dateFin: existingAbsence.dateFin,
+      phone: existingAbsence.phone,
+      email: existingAbsence.email,
+      adresseDomicile: existingAbsence.adresseDomicile
+    } : {}
   })
 
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const onSubmit = async (data: CreateAbsenceData) => {
+  const onSubmit = async (data: CreateAbsenceData & { id?: number }) => {
     try {
       setSubmitError(null)
       if (isEdit && id) {
@@ -60,7 +68,7 @@ const CreateAbsencePage = () => {
                 </label>
                 <input
                   type="text"
-                  {...register('firstname', { 
+                  {...register('firstname', {
                     required: 'Le prénom est obligatoire',
                     minLength: { value: 2, message: 'Minimum 2 caractères' },
                     maxLength: { value: 50, message: 'Maximum 50 caractères' }
@@ -78,7 +86,7 @@ const CreateAbsencePage = () => {
                 </label>
                 <input
                   type="text"
-                  {...register('lastname', { 
+                  {...register('lastname', {
                     required: 'Le nom est obligatoire',
                     minLength: { value: 2, message: 'Minimum 2 caractères' },
                     maxLength: { value: 50, message: 'Maximum 50 caractères' }
@@ -98,7 +106,7 @@ const CreateAbsencePage = () => {
                 </label>
                 <input
                   type="date"
-                  {...register('dateDebut', { 
+                  {...register('dateDebut', {
                     required: 'La date de début est obligatoire'
                   })}
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
@@ -114,7 +122,7 @@ const CreateAbsencePage = () => {
                 </label>
                 <input
                   type="date"
-                  {...register('dateFin', { 
+                  {...register('dateFin', {
                     required: 'La date de fin est obligatoire'
                   })}
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
@@ -133,7 +141,7 @@ const CreateAbsencePage = () => {
                 <input
                   type="tel"
                   placeholder="0123456789"
-                  {...register('phone', { 
+                  {...register('phone', {
                     required: 'Le téléphone est obligatoire',
                     pattern: {
                       value: /^(\+33|0)[1-9](\d{8})$/,
@@ -173,7 +181,7 @@ const CreateAbsencePage = () => {
               </label>
               <textarea
                 rows={3}
-                {...register('adresseDomicile', { 
+                {...register('adresseDomicile', {
                   required: 'L\'adresse est obligatoire',
                   minLength: { value: 10, message: 'Minimum 10 caractères' },
                   maxLength: { value: 500, message: 'Maximum 500 caractères' }
