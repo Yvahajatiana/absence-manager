@@ -1,34 +1,30 @@
 {
-  "name": "absence-backend",
+  "name": "absence-manager",
   "version": "1.0.0",
-  "description": "API REST Node.js pour la déclaration d'absences domiciliaires",
-  "main": "src/app.js",
+  "description": "Monorepo pour la gestion des déclarations d'absence domiciliaire",
+  "private": true,
+  "workspaces": [
+    "absence-backend",
+    "absence-frontend"
+  ],
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
-    "migrate": "node -e \"require('./src/config/migration').runMigrations().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); })\"",
-    "migrate:rollback": "node -e \"require('./src/config/migration').rollbackLastMigration().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); })\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "docker:build": "docker build -t absence-backend .",
-    "docker:run": "docker run -p 3000:3000 absence-backend",
-    "docker:dev": "docker-compose up --build"
-  },
-  "keywords": ["absence", "domicile", "police", "API", "REST"],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "express": "^4.18.2",
-    "sequelize": "^6.35.2",
-    "sqlite3": "^5.1.6",
-    "joi": "^17.11.0",
-    "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "dotenv": "^16.3.1",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=absence-backend",
+    "dev:frontend": "npm run dev --workspace=absence-frontend",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace=absence-backend",
+    "build:frontend": "npm run build --workspace=absence-frontend",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down",
+    "migrate": "npm run migrate --workspace=absence-backend",
+    "migrate:rollback": "npm run migrate:rollback --workspace=absence-backend"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
-  }
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["absence", "domicile", "police", "API", "REST", "React", "monorepo"],
+  "author": "",
+  "license": "ISC"
 }

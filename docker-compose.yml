@@ -1,21 +1,23 @@
+# Docker Compose pour le monorepo absence-manager
 version: '3.8'
 
 services:
-  absence-api:
+  # Backend API
+  backend:
     build:
-      context: .
+      context: ./absence-backend
       dockerfile: Dockerfile
     container_name: absence-backend
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "${BACKEND_PORT:-3000}:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=3000
     volumes:
       # Persistance de la base de données SQLite
       - absence_data:/app/data
-      # Montage des logs (optionnel)
+      # Logs backend
       - ./logs:/app/logs
     healthcheck:
       test: ["CMD", "node", "-e", "const http = require('http'); http.get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"]
@@ -26,17 +28,38 @@ services:
     networks:
       - absence_network
 
-  # Service optionnel pour la surveillance (décommentez si nécessaire)
-  # adminer:
-  #   image: adminer:latest
-  #   container_name: absence-adminer
+  # Frontend React
+  frontend:
+    build:
+      context: ./absence-frontend
+      dockerfile: Dockerfile
+    container_name: absence-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - VITE_API_URL=http://localhost:${BACKEND_PORT:-3000}/api
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - absence_network
+
+  # Service optionnel pour la surveillance des logs
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: absence-watchtower
   #   restart: unless-stopped
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     - ADMINER_DEFAULT_SERVER=absence-api
-  #   depends_on:
-  #     - absence-api
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command: --interval 86400 --cleanup
   #   networks:
   #     - absence_network
 
@@ -51,3 +74,6 @@ volumes:
 networks:
   absence_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

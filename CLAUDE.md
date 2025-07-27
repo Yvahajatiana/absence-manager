@@ -4,83 +4,103 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-API REST Node.js dockerisée pour la déclaration d'absences domiciliaires destinées aux services de police. Application complète avec base de données SQLite, validation robuste et déploiement Docker.
+Monorepo for a home absence declaration management system for police services, featuring a Node.js REST API backend with SQLite database and a React TypeScript frontend with Tailwind CSS.
 
 ## Development Commands
 
 ```bash
-# Installation des dépendances
-npm install
+# Root monorepo commands
+npm run dev              # Start both backend and frontend in parallel
+npm run dev:backend      # Start backend only (port 3000)
+npm run dev:frontend     # Start frontend only (port 5173)
 
-# Développement local
-npm run dev
+# Build commands
+npm run build            # Build both projects
+npm run build:backend    # Build backend only
+npm run build:frontend   # Build frontend only
 
-# Production locale
-npm start
+# Testing and quality
+npm run test            # Run tests for all workspaces
+npm run lint            # Run linting for all workspaces
 
-# Docker - Construction et démarrage
-npm run docker:build
-npm run docker:run
-npm run docker:dev
+# Database operations
+npm run migrate         # Run database migrations
+npm run migrate:rollback # Rollback last migration
 
-# Docker Compose (recommandé)
-docker-compose up --build
+# Docker operations
+npm run docker:up       # docker-compose up --build
+npm run docker:down     # docker-compose down
 ```
 
-## Project Structure
+## Monorepo Architecture
 
-```
-src/
-├── config/
-│   └── database.js          # Configuration Sequelize SQLite
-├── models/
-│   ├── Absence.js           # Modèle avec validations Sequelize
-│   └── index.js             # Initialisation base de données
-├── routes/
-│   └── absences.js          # Endpoints API REST
-├── middleware/
-│   └── errorHandler.js      # Gestion d'erreurs centralisée
-├── validators/
-│   └── absenceValidator.js  # Validation Joi
-└── app.js                   # Application Express principale
-```
+This is a workspaces-based monorepo with two main packages:
 
-## API Endpoints
+### Backend (`absence-backend/`)
+- **Framework**: Express.js with comprehensive middleware setup
+- **Database**: SQLite with Sequelize ORM and automatic migrations
+- **Validation**: Dual-layer validation (Joi for requests + Sequelize for models)
+- **API Documentation**: Swagger/OpenAPI 3.0 with interactive UI at `/api-docs`
+- **Security**: Helmet, CORS, request size limits, CSP configuration
+- **Health Monitoring**: Built-in health check at `/health`
 
-- `POST /api/absences` - Créer une déclaration
-- `GET /api/absences/:id` - Récupérer une déclaration
-- `PUT /api/absences/:id` - Modifier une déclaration
-- `GET /api/absences` - Lister avec pagination
+Key architectural patterns:
+- Model-driven validation with Sequelize validators
+- Centralized error handling middleware
+- Automatic database initialization and migration on startup
+- Environment-based configuration with graceful shutdown handling
+
+### Frontend (`absence-frontend/`)
+- **Framework**: React 18 + TypeScript with Vite build system
+- **Styling**: Tailwind CSS with Heroicons
+- **Routing**: React Router with nested routes
+- **State Management**: React Query for server state + React Hook Form for forms
+- **API Layer**: Axios-based API client with error interceptors
+- **Path Mapping**: TypeScript path aliases configured (`@/components/*`, etc.)
+
+Key architectural patterns:
+- Page-based routing with shared Layout component
+- Custom hooks for API operations (`useAbsences.ts`)
+- Typed API responses with comprehensive TypeScript interfaces
+- Form validation utilities and date formatting helpers
+
+## API Architecture
+
+The backend follows RESTful conventions with these endpoints:
+- `POST /api/absences` - Create absence declaration
+- `GET /api/absences/:id` - Get single absence
+- `PUT /api/absences/:id` - Update absence
+- `GET /api/absences` - List with pagination (`?page=1&limit=10`)
 - `GET /health` - Health check
-- `GET /api` - Documentation
-- `GET /api-docs` - Documentation Swagger interactive
+- `GET /api-docs` - Interactive Swagger documentation
 
 ## Data Model
 
-Modèle Absence avec champs : id, dateDebut, dateFin, firstname, lastname, phone, email (optionnel), adresseDomicile, dateCreation, dateModification.
+The core `Absence` model includes comprehensive validation:
+- Date validation (dateFin must be after dateDebut)
+- French phone number format validation
+- Email validation (optional field)
+- Name length constraints (2-50 characters)
+- Address length constraints (10-500 characters)
+- Automatic timestamps (dateCreation, dateModification)
 
-## Tech Stack
+## Docker Configuration
 
-- **Framework**: Express.js
-- **Base de données**: SQLite avec Sequelize ORM
-- **Validation**: Joi pour requêtes + Sequelize pour modèles
-- **Documentation**: Swagger/OpenAPI 3.0 avec swagger-ui-express
-- **Sécurité**: Helmet, CORS
-- **Docker**: Multi-stage build optimisé
-- **Persistance**: Volume Docker pour SQLite
+Multi-service setup with:
+- Backend container on port 3000
+- Frontend nginx container on port 8080
+- Persistent SQLite volume in `./data/`
+- Health checks for both services
+- Custom bridge network for internal communication
 
-## Testing API
+## Development Notes
 
-Documentation complète disponible :
-- **Swagger UI interactif** : `/api-docs` - Test des endpoints en direct
-- **Documentation JSON** : `/api` - Résumé des endpoints
-- **Health check** : `/health` - Statut de l'API
+- The frontend uses Vite proxy to redirect `/api` calls to backend during development
+- Database is automatically created and migrated on first startup
+- Environment variables configured via `.env` files
+- Both services have comprehensive health monitoring
+- TypeScript strict mode enabled with comprehensive linting rules
 
-Base de données automatiquement initialisée au démarrage dans `./data/database.sqlite`.
+## Testing the API
 
-## Docker Setup
-
-- Dockerfile multi-stage pour optimisation
-- docker-compose.yml avec volumes persistants
-- Health checks intégrés
-- Utilisateur non-root pour sécurité
+Use the interactive Swagger UI at `http://localhost:3000/api-docs` for complete API testing and documentation. The system includes example data and validation error responses.

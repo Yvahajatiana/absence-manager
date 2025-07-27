@@ -1,37 +1,90 @@
-# API REST Absences Domiciliaires
+# Absence Manager - Monorepo
 
-API Node.js dockerisée pour la gestion des déclarations d'absence domiciliaire destinées aux services de police.
+Système complet de gestion des déclarations d'absence domiciliaire avec backend API et interface web React.
 
-## 🚀 Fonctionnalités
+## 🏗️ Structure du projet
 
-- ✅ Création de déclarations d'absence
-- ✅ Consultation de déclarations par ID
-- ✅ Modification de déclarations existantes
-- ✅ Listing paginé des déclarations
-- ✅ Validation complète des données (Joi + Sequelize)
-- ✅ Gestion d'erreurs robuste
-- ✅ Base de données SQLite avec persistance
-- ✅ Application entièrement dockerisée
-- ✅ API REST documentée
-
-## 📋 Modèle de données
-
-```json
-{
-  "id": "integer (auto-généré)",
-  "dateDebut": "string (YYYY-MM-DD)",
-  "dateFin": "string (YYYY-MM-DD)",
-  "firstname": "string (2-50 caractères)",
-  "lastname": "string (2-50 caractères)",
-  "phone": "string (format français: 0123456789 ou +33123456789)",
-  "email": "string (optionnel, format email valide)",
-  "adresseDomicile": "string (10-500 caractères)",
-  "dateCreation": "timestamp (auto-généré)",
-  "dateModification": "timestamp (auto-géré)"
-}
+```
+absence-manager/
+├── absence-backend/     # API REST Node.js + SQLite
+├── absence-frontend/    # Interface React + Tailwind CSS
+├── package.json         # Configuration monorepo
+├── docker-compose.yml   # Orchestration complète
+└── README.md           # Documentation
 ```
 
-## 🔗 Endpoints API
+## 🚀 Démarrage rapide
+
+### Avec Docker (recommandé)
+
+```bash
+# Démarrer tout l'environnement
+docker-compose up --build
+
+# Applications accessibles :
+# - Frontend: http://localhost:8080
+# - Backend API: http://localhost:3000
+# - Documentation Swagger: http://localhost:3000/api-docs
+```
+
+### Développement local
+
+```bash
+# Installation des dépendances pour tous les projets
+npm install
+
+# Démarrage en mode développement (backend + frontend)
+npm run dev
+
+# Ou démarrer individuellement :
+npm run dev:backend   # Port 3000
+npm run dev:frontend  # Port 5173
+```
+
+## 📋 Scripts disponibles
+
+```bash
+# Développement
+npm run dev              # Backend + Frontend en parallèle
+npm run dev:backend      # Backend uniquement
+npm run dev:frontend     # Frontend uniquement
+
+# Build
+npm run build            # Build des deux projets
+npm run build:backend    # Build backend
+npm run build:frontend   # Build frontend
+
+# Docker
+npm run docker:up        # docker-compose up --build
+npm run docker:down      # docker-compose down
+
+# Base de données
+npm run migrate          # Exécuter les migrations
+npm run migrate:rollback # Annuler la dernière migration
+
+# Tests et qualité
+npm run test            # Tests pour tous les projets
+npm run lint            # Linting pour tous les projets
+```
+
+## 🛠️ Technologies
+
+### Backend (`absence-backend/`)
+- **Framework** : Express.js
+- **Base de données** : SQLite + Sequelize ORM
+- **Validation** : Joi + Sequelize validators
+- **Documentation** : Swagger/OpenAPI 3.0
+- **Container** : Node.js Alpine
+
+### Frontend (`absence-frontend/`)
+- **Framework** : React 18 + Vite
+- **UI** : Tailwind CSS + Heroicons
+- **Routing** : React Router
+- **State** : React Query pour API calls
+- **Forms** : React Hook Form
+- **Container** : Nginx Alpine
+
+## 🔗 API Endpoints
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
@@ -39,190 +92,154 @@ API Node.js dockerisée pour la gestion des déclarations d'absence domiciliaire
 | `GET` | `/api/absences/:id` | Récupérer une déclaration |
 | `PUT` | `/api/absences/:id` | Modifier une déclaration |
 | `GET` | `/api/absences` | Lister avec pagination |
-| `GET` | `/health` | État de l'API |
-| `GET` | `/api` | Documentation |
-| `GET` | `/api-docs` | Documentation Swagger interactive |
+| `GET` | `/health` | Health check |
+| `GET` | `/api-docs` | Documentation Swagger |
 
-## 🐳 Installation et utilisation Docker
+## 📊 Modèle de données
 
-### Prérequis
-- Docker
-- Docker Compose
-
-### 1. Construction et démarrage
-
-```bash
-# Démarrage avec docker-compose (recommandé)
-docker-compose up --build
-
-# Ou construction manuelle
-docker build -t absence-backend .
-docker run -p 3000:3000 absence-backend
+```typescript
+interface Absence {
+  id: number
+  dateDebut: string        // YYYY-MM-DD
+  dateFin: string          // YYYY-MM-DD
+  firstname: string        // 2-50 caractères
+  lastname: string         // 2-50 caractères
+  phone: string           // Format français
+  email?: string          // Optionnel
+  adresseDomicile: string // 10-500 caractères
+  dateCreation: string    // Auto-généré
+  dateModification: string // Auto-géré
+}
 ```
 
-### 2. Variables d'environnement
+## 🐳 Configuration Docker
 
-Copiez `.env.example` vers `.env` et ajustez les valeurs :
+### Variables d'environnement
 
-```bash
-cp .env.example .env
+Créer un fichier `.env` à la racine :
+
+```env
+NODE_ENV=production
+BACKEND_PORT=3000
+FRONTEND_PORT=8080
+VITE_API_URL=http://localhost:3000/api
 ```
 
-### 3. Scripts npm disponibles
+### Services Docker
 
-```bash
-# Développement local (nécessite Node.js)
-npm install
-npm run dev
+- **backend** : API sur port 3000
+- **frontend** : Interface sur port 8080
+- **Volumes** : Persistance SQLite dans `./data/`
+- **Network** : Réseau bridge interne
+- **Health checks** : Surveillance automatique
 
-# Docker
-npm run docker:build
-npm run docker:run
-npm run docker:dev
+## 📁 Structure détaillée
+
+### Backend (`absence-backend/`)
+```
+src/
+├── config/
+│   ├── database.js      # Configuration SQLite
+│   ├── migration.js     # Système de migration
+│   └── swagger.js       # Documentation OpenAPI
+├── models/
+│   └── Absence.js       # Modèle Sequelize
+├── routes/
+│   └── absences.js      # Endpoints API
+├── validators/
+│   └── absenceValidator.js # Validation Joi
+├── middleware/
+│   └── errorHandler.js  # Gestion d'erreurs
+└── migrations/
+    └── 001-update-absence-model.js
 ```
 
-## 📝 Exemples d'utilisation
-
-### Créer une déclaration
-
-```bash
-curl -X POST http://localhost:3000/api/absences \
-  -H "Content-Type: application/json" \
-  -d '{
-    "dateDebut": "2024-01-15",
-    "dateFin": "2024-01-20",
-    "firstname": "Jean",
-    "lastname": "Dupont",
-    "phone": "0123456789",
-    "email": "jean.dupont@email.fr",
-    "adresseDomicile": "123 Rue de la Paix, 75001 Paris, France"
-  }'
+### Frontend (`absence-frontend/`)
+```
+src/
+├── components/
+│   ├── Layout.tsx       # Layout principal
+│   ├── LoadingSpinner.tsx
+│   └── ErrorMessage.tsx
+├── pages/
+│   ├── HomePage.tsx     # Tableau de bord
+│   ├── AbsenceListPage.tsx # Liste paginée
+│   ├── CreateAbsencePage.tsx # Formulaire
+│   └── AbsenceDetailPage.tsx # Détail
+├── services/
+│   └── api.ts          # Client API Axios
+├── hooks/
+│   └── useAbsences.ts  # Hooks React Query
+├── types/
+│   └── absence.ts      # Types TypeScript
+└── utils/
+    ├── date.ts         # Utilitaires dates
+    └── validation.ts   # Validation frontend
 ```
 
-### Récupérer une déclaration
-
-```bash
-curl http://localhost:3000/api/absences/1
-```
-
-### Modifier une déclaration
-
-```bash
-curl -X PUT http://localhost:3000/api/absences/1 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "dateFin": "2024-01-25"
-  }'
-```
-
-### Lister les déclarations
-
-```bash
-curl "http://localhost:3000/api/absences?page=1&limit=10"
-```
-
-## 🏗️ Architecture du projet
-
-```
-absence-backend/
-├── src/
-│   ├── config/
-│   │   └── database.js          # Configuration Sequelize
-│   ├── models/
-│   │   ├── Absence.js           # Modèle Absence
-│   │   └── index.js             # Export et initialisation
-│   ├── routes/
-│   │   └── absences.js          # Routes API REST
-│   ├── middleware/
-│   │   └── errorHandler.js      # Gestion d'erreurs
-│   ├── validators/
-│   │   └── absenceValidator.js  # Validation Joi
-│   └── app.js                   # Application Express
-├── data/                        # Base SQLite (persistée)
-├── Dockerfile                   # Image Docker multi-stage
-├── docker-compose.yml           # Orchestration
-├── .env.example                 # Variables d'environnement
-└── package.json                 # Dépendances et scripts
-```
-
-## 🔧 Développement local
+## 🔧 Développement
 
 ### Prérequis
 - Node.js 18+
-- npm
+- Docker & Docker Compose
+- Git
 
-### Installation
+### Installation initiale
 
 ```bash
-# Installation des dépendances
+git clone <repo>
+cd absence-manager
 npm install
-
-# Démarrage en mode développement
-npm run dev
 ```
 
-L'API sera accessible sur `http://localhost:3000`
+### Base de données
 
-### 📖 Documentation Swagger
+La base SQLite est automatiquement créée au premier démarrage. Les migrations se lancent automatiquement.
 
-Une fois l'application démarrée, accédez à la documentation interactive Swagger :
-- **URL** : `http://localhost:3000/api-docs`
-- **Fonctionnalités** : Tests d'endpoints en direct, schémas de données, exemples de requêtes
-
-## 🛡️ Sécurité
-
-- ✅ Validation stricte des entrées (Joi + Sequelize)
-- ✅ Helmet.js pour les headers de sécurité
-- ✅ CORS configuré
-- ✅ Container Docker non-root
-- ✅ Gestion d'erreurs sécurisée (pas d'exposition de stack traces en production)
-
-## 📊 Monitoring
-
-### Health Check
+### Tests API
 
 ```bash
-curl http://localhost:3000/health
+# Test avec curl
+curl -X POST http://localhost:3000/api/absences \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dateDebut": "2024-02-15",
+    "dateFin": "2024-02-20",
+    "firstname": "Marie",
+    "lastname": "Martin",
+    "phone": "0145678901",
+    "email": "marie.martin@email.fr",
+    "adresseDomicile": "456 Avenue des Champs-Élysées, 75008 Paris"
+  }'
 ```
 
-### Docker Health Check
+## 🚨 Production
 
-Le container inclut un health check automatique qui vérifie l'état de l'API toutes les 30 secondes.
-
-## 📂 Persistance des données
-
-La base de données SQLite est persistée via un volume Docker dans le dossier `./data/`. 
-
-⚠️ **Important** : Assurez-vous de sauvegarder ce dossier en production.
-
-## 🐛 Debugging
-
-### Logs Docker
+### Déploiement Docker
 
 ```bash
-# Voir les logs du container
-docker-compose logs -f absence-api
+# Build et démarrage
+docker-compose -f docker-compose.yml up -d
 
-# Logs en temps réel
-docker logs -f absence-backend
+# Vérification des services
+docker-compose ps
+docker-compose logs -f
 ```
 
-### Inspection de la base
+### Sauvegardes
 
-La base SQLite est accessible dans `./data/database.sqlite` et peut être inspectée avec des outils comme SQLite Browser.
+Important : Sauvegarder régulièrement le dossier `./data/` qui contient la base SQLite.
 
-## 🤝 Support
+## 📖 Documentation
 
-- **Documentation Swagger interactive** : `GET /api-docs`
-- **Documentation API** : `GET /api`
-- **Health check** : `GET /health`
-- **Logs détaillés** en mode développement
+- **API** : http://localhost:3000/api-docs (Swagger)
+- **Backend** : `absence-backend/README.md`
+- **Frontend** : `absence-frontend/README.md`
 
-## 📊 Nouvelle fonctionnalité : Documentation Swagger
+## 🤝 Contribution
 
-✅ **Documentation OpenAPI 3.0 complète** avec :
-- Interface Swagger UI interactive
-- Test des endpoints en direct
-- Schémas de données détaillés avec exemples
-- Validation des paramètres en temps réel
-- Exemples de requêtes/réponses pour tous les endpoints
+1. Fork le projet
+2. Créer une branche feature
+3. Commit les changements
+4. Push vers la branche
+5. Ouvrir une Pull Request
