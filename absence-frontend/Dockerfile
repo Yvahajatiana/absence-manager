@@ -1,7 +1,7 @@
 # Dockerfile multi-stage pour le frontend React
 
 # Stage 1: Build dependencies
-FROM node:18-alpine AS dependencies
+FROM node:24-alpine AS dependencies
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Stage 2: Build application
-FROM node:18-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
