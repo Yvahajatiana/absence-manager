@@ -1,0 +1,115 @@
+<div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 3rem 0; margin: -2rem -1rem 2rem -1rem; text-align: center;">
+  <div style="max-width: 800px; margin: 0 auto; padding: 0 1rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">✅ Déclaration Enregistrée</h1>
+    <p style="font-size: 1.1rem; opacity: 0.9;">Votre demande de surveillance d'absence a été enregistrée avec succès</p>
+  </div>
+</div>
+
+<div class="success-message">
+  <h4>🎉 Félicitations ! Votre déclaration d'absence a été enregistrée.</h4>
+  <p>Nos équipes de police municipale ont bien reçu votre demande et effectueront des patrouilles dans votre secteur.</p>
+</div>
+
+<div class="form-container">
+  <h2 style="color: #000091; font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center;">
+    📋 Récapitulatif de votre déclaration
+  </h2>
+  
+  <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem;">
+      <strong>Numéro de déclaration :</strong>
+      <span style="color: #000091; font-weight: 600; font-family: monospace;">#{{absence.id}}</span>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem;">
+      <strong>Déclarant :</strong>
+      <span>{{absence.firstname}} {{absence.lastname}}</span>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem;">
+      <strong>Téléphone :</strong>
+      <span>{{absence.phone}}</span>
+    </div>
+    
+    {{#if absence.email}}
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem;">
+      <strong>Email :</strong>
+      <span>{{absence.email}}</span>
+    </div>
+    {{/if}}
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem;">
+      <strong>Adresse :</strong>
+      <span>{{absence.adresseDomicile}}</span>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem;">
+      <strong>Période d'absence :</strong>
+      <span>
+        Du {{formatDate absence.dateDebut}}
+        au {{formatDate absence.dateFin}}
+      </span>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+      <strong>Date d'enregistrement :</strong>
+      <span>{{formatDateTime absence.dateCreation}}</span>
+    </div>
+  </div>
+
+  <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 1.5rem; margin-bottom: 2rem;">
+    <h3 style="color: #1976d2; margin-bottom: 1rem;">📱 Conservez ces informations</h3>
+    <p style="color: #1565c0; margin-bottom: 1rem;">
+      <strong>Numéro de déclaration : #{{absence.id}}</strong>
+    </p>
+    <p style="color: #1565c0; margin: 0;">
+      Vous pourrez consulter le statut de votre déclaration en utilisant ce numéro et 
+      le lien de confirmation qui vous a été fourni.
+    </p>
+  </div>
+
+  <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1.5rem; margin-bottom: 2rem;">
+    <h3 style="color: #856404; margin-bottom: 1rem;">⚠️ Prochaines étapes</h3>
+    <ul style="color: #856404; margin: 0; padding-left: 1.5rem;">
+      <li><strong>Validation :</strong> Nos services vont valider votre demande sous 24h</li>
+      <li><strong>Intégration :</strong> Votre secteur sera ajouté au planning des patrouilles</li>
+      <li><strong>Surveillance :</strong> Des passages réguliers seront effectués pendant votre absence</li>
+      <li><strong>Contact :</strong> En cas d'anomalie, vous serez contacté immédiatement</li>
+    </ul>
+  </div>
+
+  <div style="background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 1.5rem; margin-bottom: 2rem;">
+    <h3 style="color: #0c5460; margin-bottom: 1rem;">📞 Besoin de modifier votre déclaration ?</h3>
+    <p style="color: #0c5460; margin: 0;">
+      Si vos plans changent, contactez-nous au <strong>01 23 45 67 89</strong> 
+      en mentionnant votre numéro de déclaration <strong>#{{absence.id}}</strong>.
+    </p>
+  </div>
+
+  <div style="text-align: center; margin-top: 2rem;">
+    <a href="/" class="btn btn-primary">← Retour à l'accueil</a>
+    <a href="/confirmation/{{absence.id}}" class="btn btn-secondary">🔗 Lien de confirmation</a>
+  </div>
+</div>
+
+<div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); margin-bottom: 2rem;">
+  <h2 style="color: #000091; font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; text-align: center;">
+    📋 Rappel : Conditions du service
+  </h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+    <div>
+      <h4 style="color: #000091; margin-bottom: 0.5rem;">🛡️ Surveillance active</h4>
+      <p style="color: #666; font-size: 0.9rem;">Nos patrouilles passeront régulièrement dans votre secteur pour dissuader les tentatives d'effraction.</p>
+    </div>
+    
+    <div>
+      <h4 style="color: #000091; margin-bottom: 0.5rem;">🚨 Contact d'urgence</h4>
+      <p style="color: #666; font-size: 0.9rem;">En cas d'anomalie détectée, vous serez contacté immédiatement sur le numéro fourni.</p>
+    </div>
+    
+    <div>
+      <h4 style="color: #000091; margin-bottom: 0.5rem;">🔒 Confidentialité</h4>
+      <p style="color: #666; font-size: 0.9rem;">Vos informations personnelles sont protégées et utilisées uniquement dans le cadre de ce service.</p>
+    </div>
+  </div>
+</div>

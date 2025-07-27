@@ -1,19 +1,22 @@
 {
   "name": "absence-manager",
   "version": "1.0.0",
-  "description": "Monorepo pour la gestion des déclarations d'absence domiciliaire",
+  "description": "Monorepo pour la gestion des déclarations d'absence domiciliaire - Backend API, Frontend Admin et Client Public",
   "private": true,
   "workspaces": [
     "absence-backend",
-    "absence-frontend"
+    "absence-frontend",
+    "absence-client"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:client\"",
     "dev:backend": "npm run dev --workspace=absence-backend",
     "dev:frontend": "npm run dev --workspace=absence-frontend",
+    "dev:client": "npm run dev --workspace=absence-client",
     "build": "npm run build --workspaces",
     "build:backend": "npm run build --workspace=absence-backend",
     "build:frontend": "npm run build --workspace=absence-frontend",
+    "build:client": "npm run build --workspace=absence-client",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
     "docker:up": "docker-compose up --build",
