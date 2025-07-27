@@ -37,7 +37,7 @@ async function bootstrap() {
   // Configuration des fichiers statiques
   app.useStaticAssets(join(__dirname, '..', 'public'));
   
-  const port = process.env.PORT || 3002;
+  const port = process.env.PORT || 3003;
   await app.listen(port);
   
   console.log(`🌐 Client NestJS démarré sur http://localhost:${port}`);

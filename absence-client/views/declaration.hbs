@@ -1,128 +1,77 @@
-<div style="background: linear-gradient(135deg, #000091 0%, #1e1e78 100%); color: white; padding: 3rem 0; margin: -2rem -1rem 2rem -1rem; text-align: center;">
-  <div style="max-width: 800px; margin: 0 auto; padding: 0 1rem;">
-    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">📋 Déclaration d'Absence</h1>
-    <p style="font-size: 1.1rem; opacity: 0.9;">Remplissez ce formulaire pour bénéficier de notre service de surveillance</p>
+<div class="hero-section">
+  <div class="hero-content">
+    <h1 class="page-title">📋 Déclaration d'Absence</h1>
+    <p class="page-subtitle">Remplissez ce formulaire pour bénéficier de notre service de surveillance</p>
   </div>
 </div>
 
 {{#if errors}}
-  <div class="error-message">
-    <h4>❌ Erreurs détectées :</h4>
-    <ul style="margin: 0.5rem 0 0 1rem;">
-      {{#each errors}}
-        <li>{{this}}</li>
-      {{/each}}
-    </ul>
-  </div>
+<div class="error-message">
+  <h4>❌ Erreurs détectées :</h4>
+  <ul style="margin: 0.5rem 0 0 1rem;">
+    {{#each errors}}
+    <li>{{this}}</li>
+    {{/each}}
+  </ul>
+</div>
 {{/if}}
 
 <div class="form-container">
   <form action="/declaration" method="POST">
-    <h2 style="color: #000091; font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; text-align: center;">
-      Informations personnelles
-    </h2>
+    <h2 class="section-title">Informations personnelles</h2>
 
     <div class="form-row">
       <div class="form-group">
         <label for="firstname">Prénom *</label>
-        <input 
-          type="text" 
-          id="firstname" 
-          name="firstname" 
-          value="{{formData.firstname}}"
-          required
-          minlength="2"
-          maxlength="50"
-        >
+        <input type="text" id="firstname" name="firstname" value="{{formData.firstname}}" required minlength="2"
+          maxlength="50">
       </div>
 
       <div class="form-group">
         <label for="lastname">Nom *</label>
-        <input 
-          type="text" 
-          id="lastname" 
-          name="lastname" 
-          value="{{formData.lastname}}"
-          required
-          minlength="2"
-          maxlength="50"
-        >
+        <input type="text" id="lastname" name="lastname" value="{{formData.lastname}}" required minlength="2"
+          maxlength="50">
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label for="phone">Téléphone *</label>
-        <input 
-          type="tel" 
-          id="phone" 
-          name="phone" 
-          value="{{formData.phone}}"
-          placeholder="0123456789"
-          required
-          pattern="^(\+33|0)[1-9](\d{8})$"
-          title="Format : 0123456789 ou +33123456789"
-        >
+        <input type="tel" id="phone" name="phone" value="{{formData.phone}}" placeholder="0123456789" required
+          pattern="^(\+33|0)[1-9](\d{8})$" title="Format : 0123456789 ou +33123456789">
       </div>
 
       <div class="form-group">
         <label for="email">Email (optionnel)</label>
-        <input 
-          type="email" 
-          id="email" 
-          name="email" 
-          value="{{formData.email}}"
-          placeholder="votre.email@exemple.fr"
-        >
+        <input type="email" id="email" name="email" value="{{formData.email}}" placeholder="votre.email@exemple.fr">
       </div>
     </div>
 
     <div class="form-group">
       <label for="adresseDomicile">Adresse du domicile *</label>
-      <textarea 
-        id="adresseDomicile" 
-        name="adresseDomicile" 
-        rows="3"
-        required
-        minlength="10"
-        maxlength="500"
-        placeholder="Votre adresse complète : numéro, rue, code postal, ville"
-      >{{formData.adresseDomicile}}</textarea>
+      <textarea id="adresseDomicile" name="adresseDomicile" rows="3" required minlength="10" maxlength="500"
+        placeholder="Votre adresse complète : numéro, rue, code postal, ville">{{formData.adresseDomicile}}</textarea>
     </div>
 
-    <h2 style="color: #000091; font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1.5rem 0; text-align: center;">
-      Période d'absence
-    </h2>
+    <h2 class="section-title">Période d'absence</h2>
 
     <div class="form-row">
       <div class="form-group">
         <label for="dateDebut">Date de début *</label>
-        <input 
-          type="date" 
-          id="dateDebut" 
-          name="dateDebut" 
-          value="{{formData.dateDebut}}"
-          required
-        >
+        <input type="date" id="dateDebut" name="dateDebut" value="{{formData.dateDebut}}" required>
         <small style="color: #666; font-size: 0.9rem;">Minimum 48h à l'avance</small>
       </div>
 
       <div class="form-group">
         <label for="dateFin">Date de fin *</label>
-        <input 
-          type="date" 
-          id="dateFin" 
-          name="dateFin" 
-          value="{{formData.dateFin}}"
-          required
-        >
+        <input type="date" id="dateFin" name="dateFin" value="{{formData.dateFin}}" required>
         <small style="color: #666; font-size: 0.9rem;">Maximum 30 jours après le début</small>
       </div>
     </div>
 
-    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-      <h3 style="color: #000091; font-size: 1.1rem; margin-bottom: 1rem;">ℹ️ Informations importantes</h3>
-      <ul style="margin: 0; padding-left: 1.5rem; color: #555;">
+    <div class="alert alert-info">
+      <h3>ℹ️ Informations importantes</h3>
+      <ul>
         <li>La déclaration doit être faite au moins 48h avant votre départ</li>
         <li>L'absence doit être d'au minimum 24 heures</li>
         <li>La durée maximale est de 30 jours par déclaration</li>
@@ -131,7 +80,7 @@
       </ul>
     </div>
 
-    <div style="text-align: center; margin-top: 2rem;">
+    <div class="text-center" style="margin-top: 2rem;">
       <button type="button" onclick="history.back()" class="btn btn-secondary">
         ← Retour
       </button>
@@ -144,22 +93,22 @@
 
 <script>
   // Validation des dates côté client
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const dateDebut = document.getElementById('dateDebut');
     const dateFin = document.getElementById('dateFin');
-    
+
     // Définir la date minimale (48h à l'avance)
     const now = new Date();
     const minDate = new Date(now.getTime() + 48 * 60 * 60 * 1000);
     dateDebut.min = minDate.toISOString().split('T')[0];
-    
+
     function validateDates() {
       if (dateDebut.value && dateFin.value) {
         const debut = new Date(dateDebut.value);
         const fin = new Date(dateFin.value);
         const diffTime = Math.abs(fin - debut);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (fin <= debut) {
           dateFin.setCustomValidity('La date de fin doit être après la date de début');
         } else if (diffDays > 30) {
@@ -169,12 +118,12 @@
         }
       }
     }
-    
+
     dateDebut.addEventListener('change', validateDates);
     dateFin.addEventListener('change', validateDates);
-    
+
     // Mise à jour du min de dateFin quand dateDebut change
-    dateDebut.addEventListener('change', function() {
+    dateDebut.addEventListener('change', function () {
       if (this.value) {
         const nextDay = new Date(this.value);
         nextDay.setDate(nextDay.getDate() + 1);
