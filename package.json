@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
+    "migrate": "node -e \"require('./src/config/migration').runMigrations().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); })\"",
+    "migrate:rollback": "node -e \"require('./src/config/migration').rollbackLastMigration().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); })\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docker:build": "docker build -t absence-backend .",
     "docker:run": "docker run -p 3000:3000 absence-backend",

@@ -36,29 +36,64 @@ const Absence = sequelize.define('Absence', {
       }
     }
   },
-  coordonneesPers: {
-    type: DataTypes.JSON,
+  firstname: {
+    type: DataTypes.STRING,
     allowNull: false,
     validate: {
       notNull: {
-        msg: 'Les coordonnées de la personne sont obligatoires'
+        msg: 'Le prénom est obligatoire'
       },
-      isValidCoordinates(value) {
-        if (!value || typeof value !== 'object') {
-          throw new Error('Les coordonnées doivent être un objet');
-        }
-        if (!value.latitude || !value.longitude) {
-          throw new Error('Les coordonnées doivent contenir latitude et longitude');
-        }
-        if (typeof value.latitude !== 'number' || typeof value.longitude !== 'number') {
-          throw new Error('Latitude et longitude doivent être des nombres');
-        }
-        if (value.latitude < -90 || value.latitude > 90) {
-          throw new Error('La latitude doit être comprise entre -90 et 90');
-        }
-        if (value.longitude < -180 || value.longitude > 180) {
-          throw new Error('La longitude doit être comprise entre -180 et 180');
-        }
+      notEmpty: {
+        msg: 'Le prénom ne peut pas être vide'
+      },
+      len: {
+        args: [2, 50],
+        msg: 'Le prénom doit contenir entre 2 et 50 caractères'
+      }
+    }
+  },
+  lastname: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notNull: {
+        msg: 'Le nom de famille est obligatoire'
+      },
+      notEmpty: {
+        msg: 'Le nom de famille ne peut pas être vide'
+      },
+      len: {
+        args: [2, 50],
+        msg: 'Le nom de famille doit contenir entre 2 et 50 caractères'
+      }
+    }
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notNull: {
+        msg: 'Le numéro de téléphone est obligatoire'
+      },
+      notEmpty: {
+        msg: 'Le numéro de téléphone ne peut pas être vide'
+      },
+      is: {
+        args: /^(\+33|0)[1-9](\d{8})$/,
+        msg: 'Le numéro de téléphone doit être au format français valide'
+      }
+    }
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isEmail: {
+        msg: 'L\'adresse email doit être valide'
+      },
+      len: {
+        args: [0, 100],
+        msg: 'L\'adresse email ne peut pas dépasser 100 caractères'
       }
     }
   },

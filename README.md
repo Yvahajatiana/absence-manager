@@ -21,10 +21,10 @@ API Node.js dockerisée pour la gestion des déclarations d'absence domiciliaire
   "id": "integer (auto-généré)",
   "dateDebut": "string (YYYY-MM-DD)",
   "dateFin": "string (YYYY-MM-DD)",
-  "coordonneesPers": {
-    "latitude": "number (-90 à 90)",
-    "longitude": "number (-180 à 180)"
-  },
+  "firstname": "string (2-50 caractères)",
+  "lastname": "string (2-50 caractères)",
+  "phone": "string (format français: 0123456789 ou +33123456789)",
+  "email": "string (optionnel, format email valide)",
   "adresseDomicile": "string (10-500 caractères)",
   "dateCreation": "timestamp (auto-généré)",
   "dateModification": "timestamp (auto-géré)"
@@ -91,10 +91,10 @@ curl -X POST http://localhost:3000/api/absences \
   -d '{
     "dateDebut": "2024-01-15",
     "dateFin": "2024-01-20",
-    "coordonneesPers": {
-      "latitude": 48.8566,
-      "longitude": 2.3522
-    },
+    "firstname": "Jean",
+    "lastname": "Dupont",
+    "phone": "0123456789",
+    "email": "jean.dupont@email.fr",
     "adresseDomicile": "123 Rue de la Paix, 75001 Paris, France"
   }'
 ```
