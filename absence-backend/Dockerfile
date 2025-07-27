@@ -1,7 +1,7 @@
 # Dockerfile multi-stage pour optimiser la taille de l'image
 
 # Stage 1: Build dependencies
-FROM node:18-alpine AS dependencies
+FROM node:24-alpine AS dependencies
 
 # Installer les dépendances système nécessaires
 RUN apk add --no-cache python3 make g++
@@ -15,7 +15,7 @@ COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
 # Stage 2: Production image
-FROM node:18-alpine AS production
+FROM node:24-alpine AS production
 
 # Créer un utilisateur non-root pour la sécurité
 RUN addgroup -g 1001 -S nodejs && \
