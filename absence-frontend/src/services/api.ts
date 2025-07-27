@@ -1,10 +1,10 @@
 import axios from 'axios'
-import type { 
-  Absence, 
-  CreateAbsenceData, 
-  UpdateAbsenceData, 
-  ApiResponse, 
-  PaginatedResponse 
+import type {
+  Absence,
+  CreateAbsenceData,
+  UpdateAbsenceData,
+  ApiResponse,
+  PaginatedResponse
 } from '../types/absence'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
