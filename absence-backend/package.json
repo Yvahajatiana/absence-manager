@@ -2,12 +2,10 @@
   "name": "absence-backend",
   "version": "1.0.0",
   "description": "API REST Node.js pour la déclaration d'absences domiciliaires",
-  "main": "src/app.js",
+  "main": "dist/app.js",
   "scripts": {
     "start": "node dist/app.js",
-    "start:js": "node src/app.js",
-    "dev": "nodemon --exec ts-node src/app.ts",
-    "dev:js": "nodemon src/app.js",
+    "dev": "nodemon --exec \"ts-node -r tsconfig-paths/register src/app.ts\"",
     "build": "tsc",
     "migrate": "node -e \"require('./src/config/migration').runMigrations().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); })\"",
     "migrate:rollback": "node -e \"require('./src/config/migration').rollbackLastMigration().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); })\"",
@@ -47,6 +45,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   }
 }
